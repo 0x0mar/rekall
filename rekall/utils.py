@@ -23,6 +23,7 @@
 """These are various utilities for rekall."""
 import __builtin__
 import bisect
+import decimal
 import importlib
 import itertools
 import json

@@ -22,14 +22,14 @@ class CellTest(testlib.RekallBaseUnitTestCase):
         self.assertEqual(c2.width, 8)
         self.assertEqual(c2.height, 3)
         
-        c3 = text.NestedCell(c1, c2, tablesep="|")
+        c3 = text.JoinedCell(c1, c2, tablesep="|")
         self.assertEqual(c3.lines, ["Hello, |I am a  ",
                                     "world! |line of ",
                                     "       |text.   "])
         self.assertEqual(c3.height, 3)
         self.assertEqual(c3.width, 7 + 1 + 8)
         
-        c4 = text.NestedCell(c3, c1)
+        c4 = text.JoinedCell(c3, c1)
         self.assertEqual(len(c4.cells), 3)
         self.assertEqual(c4.width, 7 + 1 + 8 + 1 + 7)
     

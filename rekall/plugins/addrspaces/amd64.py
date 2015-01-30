@@ -105,6 +105,39 @@ class AMD64PagedMemory(intel.IA32PagedMemoryPae):
 
     lock = 0
 
+    def vaddr_access(self, vaddr):
+        """Is the access bit set on the page for the vaddr?"""
+        vaddr = long(vaddr)
+        pml4e = self.get_pml4e(vaddr)
+        if not self.pml4e_entry_present(pml4e):
+            return None
+
+        pdpte = self.get_pdpte(vaddr, pml4e)
+        if not self.pdpte_entry_present(pdpte):
+            return None
+        
+        if self.page_size_flag(pdpte):
+            return (self.page_access_flag(pml4e) and
+                    self.page_access_flag(pdpte))
+
+        pde = self.get_pde(vaddr, pdpte)
+        if not self.pde_entry_present(pde):
+            return None
+        
+        if self.page_size_flag(pde):
+            return (self.page_access_flag(pde) and
+                    self.page_access_flag(pml4e) and
+                    self.page_access_flag(pdpte))
+
+        pte = self.get_pte(vaddr, pde)
+        if not self.pte_entry_present(pte):
+            return None
+        
+        return (self.page_access_flag(pte) and
+                self.page_access_flag(pde) and
+                self.page_access_flag(pml4e) and
+                self.page_access_flag(pdpte))
+
     def vtop(self, vaddr):
         '''
         Translates virtual addresses into physical offsets.

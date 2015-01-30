@@ -167,6 +167,7 @@ class BaseAddressSpace(object):
         contiguous_voffset = 0
         contiguous_poffset = 0
         total_length = 0
+
         for (voffset, poffset, length) in self.get_available_addresses(
                 start=start):
 

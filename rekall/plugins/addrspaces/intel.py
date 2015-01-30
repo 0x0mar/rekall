@@ -123,6 +123,12 @@ class IA32PagedMemory(addrspace.PagedReader):
         '''
         return entry & 1
 
+    def page_access_flag(self, entry):
+        '''
+        Returns the user/supervisor bit of the entry.
+        '''
+        return entry & (1 << 2)
+
     def page_size_flag(self, entry):
         '''
         Returns whether or not the 'PS' (Page Size) flag is on
@@ -187,6 +193,19 @@ class IA32PagedMemory(addrspace.PagedReader):
         Bits 21:0 are from the original linear address
         '''
         return (pde_value & 0xffc00000) | (vaddr & 0x3fffff)
+
+    def vaddr_access(self, vaddr):
+        """Is the access bit set on the page for the vaddr?"""
+        pde_value = self.get_pde(vaddr)
+        if not self.pde_entry_present(pde_value):
+            return None
+
+        pte_value = self.get_pte(vaddr, pde_value)
+        if not self.pte_entry_present(pte_value):
+            return None
+
+        return (self.page_access_flag(pte_value) and
+                self.page_access_flag(pde_value))
 
     def vtop(self, vaddr):
         '''
